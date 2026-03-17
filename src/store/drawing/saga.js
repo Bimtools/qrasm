@@ -44,7 +44,6 @@ function* getDrawingSaga(action) {
     };
   });
 
-  console.log(views);
   yield put(
     GetDrawingSuccess({
       views: views,

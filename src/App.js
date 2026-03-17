@@ -56,21 +56,22 @@ function App() {
       models = await tcapi.viewer.getModels();
     } while (models === undefined || models.length === 0);
     var asm;
-
     var modelId;
     for (const model of models) {
       const modelName = model.name;
       if (modelName.indexOf(".trb") >= 0) {
+        console.log(modelName);
         dispatch(
           GetAnnIdRequest({
             name: model.name,
             modelId: model.id,
           }),
         );
-      } else if (
-        modelName.indexOf(".ifc") >= 0 ||
-        modelName.indexOf(".tekla") >= 0
-      ) {
+      }
+    }
+    for (const model of models) {
+      const modelName = model.name;
+      if (modelName.indexOf(".ifc") >= 0 || modelName.indexOf(".tekla") >= 0) {
         const loadedModel = await tcapi.viewer.getLoadedModel(model.id);
         console.log(loadedModel);
         if (loadedModel === undefined) {
@@ -157,16 +158,37 @@ function App() {
               onClick={async () => {
                 const tcapi = await WorkspaceAPI.connect(window.parent);
                 const annObjs = annIds.find((x) => x.name === views[0]?.file);
+                console.log(annIds);
+                console.log(views[0]);
                 const loadedModel = await tcapi.viewer.getLoadedModel(
                   annObjs.modelId,
                 );
-                console.log(showAnn);
+
                 if (loadedModel === undefined) {
                   await tcapi.viewer.toggleModel(
                     annObjs.modelId,
                     !showAnn,
                     false,
                   );
+                  if (!showAnn) {
+                    tcapi.viewer.setObjectState(
+                      {
+                        modelObjectIds: [
+                          {
+                            modelId: annObjs.modelId,
+                          },
+                        ],
+                      },
+                      {
+                        visible: true,
+                        // color: {
+                        //   r: 0,
+                        //   g: 0,
+                        //   b: 0,
+                        // },
+                      },
+                    );
+                  }
                 } else {
                   if (showAnn) {
                     await tcapi.viewer.toggleModel(
@@ -184,7 +206,12 @@ function App() {
                         ],
                       },
                       {
-                        visible: "reset"
+                        visible: true,
+                        // color: {
+                        //   r: 0,
+                        //   g: 0,
+                        //   b: 0,
+                        // },
                       },
                     );
                   }
@@ -316,11 +343,11 @@ function App() {
                     },
                     {
                       visible: true,
-                      color: {
-                        r: 0,
-                        g: 0,
-                        b: 0,
-                      },
+                      // color: {
+                      //   r: 0,
+                      //   g: 0,
+                      //   b: 0,
+                      // },
                     },
                   );
                   tcapi.viewer.setObjectState(
@@ -338,11 +365,11 @@ function App() {
                   );
                 }}
               />
-              <Button
+              {/* <Button
                 type="primary"
                 icon={<ScissorOutlined />}
                 onClick={() => {}}
-              />
+              /> */}
             </div>
           </List.Item>
         )}
