@@ -101,20 +101,20 @@ function App() {
     }
     setAsm(asm);
     setModelId(modelId);
-    await tcapi.viewer.setSelection({
-      modelObjectIds: [
-        {
-          modelId: modelId,
-          objectRuntimeIds: [asm],
-        },
-      ],
-    });
-    await tcapi.viewer.isolateEntities([
-      {
-        modelId: modelId,
-        entityIds: [asm],
-      },
-    ]);
+    // await tcapi.viewer.setSelection({
+    //   modelObjectIds: [
+    //     {
+    //       modelId: modelId,
+    //       objectRuntimeIds: [asm],
+    //     },
+    //   ],
+    // });
+    // await tcapi.viewer.isolateEntities([
+    //   {
+    //     modelId: modelId,
+    //     entityIds: [asm],
+    //   },
+    // ]);
     console.log(asm, modelId);
     // await tcapi.viewer.setCamera({
     //   position: {
