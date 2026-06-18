@@ -45,16 +45,11 @@ function App() {
     if (!fId) {
       return;
     }
-    // dispatch(
-    //   GetDrawingRequest({
-    //     id: fId,
-    //   }),
-    // );
-    // console.log(token);
-    // const onMessage = async (event) => {
-    //   console.log(event.data);
-    // };
-    // window.addEventListener("message", onMessage);
+    dispatch(
+      GetDrawingRequest({
+        id: fId,
+      }),
+    );
     var models;
     do {
       models = await tcapi.viewer.getModels();
@@ -70,10 +65,8 @@ function App() {
         console.log("loadedModel", loadedModel);
         if (!loadedModel) {
           await tcapi.viewer.toggleModel(model.id, true, true);
-        }else{
-          await tcapi.viewer.toggleModel(model.id, false, false);
-          await tcapi.viewer.toggleModel(model.id, true, true);
         }
+        await tcapi.viewer.setCamera("reset");
 
         let modelObjects;
         let retries = 0;
@@ -107,22 +100,33 @@ function App() {
         }
       }
     }
-    // setAsm(asm);
-    // setModelId(modelId);
-    // await tcapi.viewer.setSelection({
-    //   modelObjectIds: [
-    //     {
-    //       modelId: modelId,
-    //       objectRuntimeIds: [asm],
-    //     },
-    //   ],
-    // });
-    // await tcapi.viewer.isolateEntities([
-    //   {
-    //     modelId: modelId,
-    //     entityIds: [asm],
-    //   },
-    // ]);
+    setAsm(asm);
+    setModelId(modelId);
+    if (asm >= 0) {
+      await tcapi.viewer.setSelection({
+        modelObjectIds: [
+          {
+            modelId: modelId,
+            objectRuntimeIds: [asm],
+          },
+        ],
+      });
+      await tcapi.viewer.isolateEntities([
+        {
+          modelId: modelId,
+          entityIds: [asm],
+        },
+      ]);
+      await tcapi.viewer.setCamera({
+        modelObjectIds: [
+          {
+            modelId: modelId,
+            objectRuntimeIds: [asm],
+          },
+        ],
+      });
+    }
+
     //console.log(asm, modelId);
     // await tcapi.viewer.setCamera({
     //   position: {
@@ -134,17 +138,6 @@ function App() {
     //   yaw: Math.PI,
     //   pitch: 0,
     // });
-
-    // if (asm >= 0) {
-    //   await tcapi.viewer.setCamera({
-    //     modelObjectIds: [
-    //       {
-    //         modelId: modelId,
-    //         objectRuntimeIds: [asm],
-    //       },
-    //     ],
-    //   });
-    // }
   }
 
   React.useEffect(() => {
