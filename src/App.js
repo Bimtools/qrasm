@@ -45,25 +45,33 @@ function App() {
     if (!fId) {
       return;
     }
-    dispatch(
-      GetDrawingRequest({
-        id: fId,
-      }),
-    );
-
+    // dispatch(
+    //   GetDrawingRequest({
+    //     id: fId,
+    //   }),
+    // );
+    // console.log(token);
+    // const onMessage = async (event) => {
+    //   console.log(event.data);
+    // };
+    // window.addEventListener("message", onMessage);
     var models;
     do {
       models = await tcapi.viewer.getModels();
     } while (models === undefined || models.length === 0);
     var asm;
     var modelId;
+    console.log(models);
     for (const model of models) {
       const modelName = model.name;
 
       if (modelName.includes(".ifc") || modelName.includes(".tekla")) {
         const loadedModel = await tcapi.viewer.getLoadedModel(model.id);
-
+        console.log("loadedModel", loadedModel);
         if (!loadedModel) {
+          await tcapi.viewer.toggleModel(model.id, true, true);
+        }else{
+          await tcapi.viewer.toggleModel(model.id, false, false);
           await tcapi.viewer.toggleModel(model.id, true, true);
         }
 
@@ -99,8 +107,8 @@ function App() {
         }
       }
     }
-    setAsm(asm);
-    setModelId(modelId);
+    // setAsm(asm);
+    // setModelId(modelId);
     // await tcapi.viewer.setSelection({
     //   modelObjectIds: [
     //     {
@@ -115,7 +123,7 @@ function App() {
     //     entityIds: [asm],
     //   },
     // ]);
-    console.log(asm, modelId);
+    //console.log(asm, modelId);
     // await tcapi.viewer.setCamera({
     //   position: {
     //     x: 1358.0000001497558,
@@ -127,16 +135,16 @@ function App() {
     //   pitch: 0,
     // });
 
-    if (asm >= 0) {
-      await tcapi.viewer.setCamera({
-        modelObjectIds: [
-          {
-            modelId: modelId,
-            objectRuntimeIds: [asm],
-          },
-        ],
-      });
-    }
+    // if (asm >= 0) {
+    //   await tcapi.viewer.setCamera({
+    //     modelObjectIds: [
+    //       {
+    //         modelId: modelId,
+    //         objectRuntimeIds: [asm],
+    //       },
+    //     ],
+    //   });
+    // }
   }
 
   React.useEffect(() => {
