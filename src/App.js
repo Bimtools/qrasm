@@ -59,37 +59,40 @@ function App() {
     var modelId;
     for (const model of models) {
       const modelName = model.name;
-      if (modelName.indexOf(".trb") >= 0) {
-        console.log(modelName);
-        dispatch(
-          GetAnnIdRequest({
-            name: model.name,
-            modelId: model.id,
-          }),
-        );
-      }
-    }
-    for (const model of models) {
-      const modelName = model.name;
-      if (modelName.indexOf(".ifc") >= 0 || modelName.indexOf(".tekla") >= 0) {
+
+      if (modelName.includes(".ifc") || modelName.includes(".tekla")) {
         const loadedModel = await tcapi.viewer.getLoadedModel(model.id);
-        console.log(loadedModel);
-        if (loadedModel === undefined) {
+
+        if (!loadedModel) {
           await tcapi.viewer.toggleModel(model.id, true, true);
         }
-        var modelObjects;
+
+        let modelObjects;
+        let retries = 0;
+        const maxRetries = 20;
+
         do {
           modelObjects = await tcapi.viewer.getObjects();
-        } while (modelObjects === undefined || modelObjects.length === 0);
+          await new Promise((r) => setTimeout(r, 200));
+          retries++;
+        } while (
+          (!modelObjects || modelObjects.length === 0) &&
+          retries < maxRetries
+        );
+
+        if (!modelObjects || modelObjects.length === 0) {
+          console.warn("No objects loaded for model:", model.id);
+          continue;
+        }
+
+        console.log(modelObjects);
+
         const runtimeIds = await tcapi.viewer.convertToObjectRuntimeIds(
           model.id,
           [ifcGuid],
         );
-        if (
-          runtimeIds !== undefined &&
-          runtimeIds.length > 0 &&
-          runtimeIds[0] >= 0
-        ) {
+
+        if (runtimeIds?.[0] >= 0) {
           asm = runtimeIds[0];
           modelId = model.id;
           break;
@@ -112,6 +115,7 @@ function App() {
         entityIds: [asm],
       },
     ]);
+    console.log(asm, modelId);
     // await tcapi.viewer.setCamera({
     //   position: {
     //     x: 1358.0000001497558,
@@ -122,14 +126,17 @@ function App() {
     //   yaw: Math.PI,
     //   pitch: 0,
     // });
-    await tcapi.viewer.setCamera({
-      modelObjectIds: [
-        {
-          modelId: modelId,
-          objectRuntimeIds: [asm],
-        },
-      ],
-    });
+
+    if (asm >= 0) {
+      await tcapi.viewer.setCamera({
+        modelObjectIds: [
+          {
+            modelId: modelId,
+            objectRuntimeIds: [asm],
+          },
+        ],
+      });
+    }
   }
 
   React.useEffect(() => {
