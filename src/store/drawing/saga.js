@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import {
   GetDrawingSuccess,
+  GetDrawingFailure,
   UpdateViewVisibilitySuccess,
   GetTrbModelSuccess,
   GetAnnIdSuccess,
@@ -17,38 +18,47 @@ import {
 import instance from "../../interceptors/axios";
 
 function* getDrawingSaga(action) {
-  const getCommentUrl = `/comments?objectId=${action.payload.id}&objectType=FOLDER`;
-  const commentResponse = yield call(instance.get, getCommentUrl);
-  console.log(commentResponse);
-  const comments = commentResponse.data.map((x) => {
-    const comment = JSON.parse(x.description);
-    return comment;
-  });
-  const grouped = comments.reduce((acc, comment) => {
-    const key = comment.name;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(comment);
-    acc[key].sort((a, b) => a.index - b.index);
-    return acc;
-  }, {});
-  const views = Object.values(grouped).map((group) => {
-    const bs = group.map((item) => item.comment);
-    console.log(bs.join(""))
-    const viewObjs = JSON.parse(bs.join(""));
-    return {
-      show: false,
-      key: viewObjs.name,
-      ...viewObjs,
-    };
-  });
+  try {
+    const getCommentUrl = `/comments?objectId=${action.payload.id}&objectType=FOLDER`;
+    const commentResponse = yield call(instance.get, getCommentUrl);
+    console.log(commentResponse);
+    const comments = commentResponse.data.map((x) => {
+      const comment = JSON.parse(x.description);
+      return comment;
+    });
+    const grouped = comments.reduce((acc, comment) => {
+      const key = comment.name;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(comment);
+      acc[key].sort((a, b) => a.index - b.index);
+      return acc;
+    }, {});
+    const views = Object.values(grouped).map((group) => {
+      try {
+        const bs = group.map((item) => item.comment);
+        console.log(bs.join(""));
+        const viewObjs = JSON.parse(bs.join(""));
+        return {
+          show: false,
+          key: viewObjs.name,
+          ...viewObjs,
+        };
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    });
 
-  yield put(
-    GetDrawingSuccess({
-      views: views,
-    }),
-  );
+    yield put(
+      GetDrawingSuccess({
+        views: views,
+      }),
+    );
+  } catch (error) {
+    yield put(GetDrawingFailure({ error: error }));
+  }
 }
 
 function* getAnnIdSaga(action) {

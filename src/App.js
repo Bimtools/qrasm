@@ -57,9 +57,9 @@ function App() {
     var asm;
     var modelId;
     console.log(models);
+    await tcapi.viewer.reset();
     for (const model of models) {
       const modelName = model.name;
-
       if (modelName.includes(".ifc") || modelName.includes(".tekla")) {
         const loadedModel = await tcapi.viewer.getLoadedModel(model.id);
         console.log("loadedModel", loadedModel);
@@ -100,6 +100,7 @@ function App() {
         }
       }
     }
+    console.log(asm, modelId);
     setAsm(asm);
     setModelId(modelId);
     if (asm >= 0) {
@@ -167,6 +168,7 @@ function App() {
                 const tcapi = await WorkspaceAPI.connect(window.parent);
                 const annObjs = annIds.find((x) => x.name === views[0]?.file);
                 console.log(annIds);
+                console.log(annObjs);
                 console.log(views[0]);
                 const loadedModel = await tcapi.viewer.getLoadedModel(
                   annObjs.modelId,

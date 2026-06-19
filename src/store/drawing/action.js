@@ -12,6 +12,12 @@ export function GetDrawingSuccess(payload) {
     payload: payload,
   };
 }
+export function GetDrawingFailure(payload) {
+  return {
+    type: actionType.GET_DRAWING_FAILURE,
+    payload: payload,
+  };
+}
 export function UpdateViewVisibilityRequest(payload) {
   return {
     type: actionType.UPDATE_VIEW_VISIBILITY_REQUEST,

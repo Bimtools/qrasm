@@ -24,7 +24,7 @@ const reducers = (state = initialState, action) => {
       return {
         ...state,
         pending: false,
-        error: action.error,
+        error: action.payload.error,
       };
     case type.UPDATE_VIEW_VISIBILITY_REQUEST:
       return {
