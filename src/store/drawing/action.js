@@ -54,6 +54,12 @@ export function GetAnnIdSuccess(payload) {
     payload: payload,
   };
 }
+export function GetAnnIdFailure(payload) {
+  return {
+    type: actionType.GET_ANN_ID_FAILURE,
+    payload: payload,
+  };
+}
 export function ShowAnnRequest(payload) {
   return {
     type: actionType.SHOW_ANN_REQUEST,

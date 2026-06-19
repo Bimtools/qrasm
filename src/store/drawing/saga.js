@@ -9,8 +9,9 @@ import {
 } from "redux-saga/effects";
 import {
   GetDrawingSuccess,
-  GetDrawingFailure,
   UpdateViewVisibilitySuccess,
+  GetDrawingFailure,
+  GetAnnIdFailure,
   GetTrbModelSuccess,
   GetAnnIdSuccess,
   ShowAnnSuccess,
@@ -62,25 +63,29 @@ function* getDrawingSaga(action) {
 }
 
 function* getAnnIdSaga(action) {
-  const getCommentUrl = `https://model-api32.connect.trimble.com/models/${action.payload.modelId}/entities?offset=0&include=psets&fields=psets`;
-  const response = yield call(instance.get, getCommentUrl);
-  const annIds = response.data.items.map((x) => {
-    if (x.psets.length > 0) {
-      const id = x.id;
-      const annValue = Number(x.psets[0].values[0]);
-      return { id: id, annId: annValue };
-    } else {
-      return { id: x.id, annId: -1 };
-    }
-  });
-  console.log(annIds);
-  yield put(
-    GetAnnIdSuccess({
-      name: action.payload.name,
-      modelId: action.payload.modelId,
-      annIds: annIds,
-    }),
-  );
+  try {
+    const getCommentUrl = `https://model-api32.connect.trimble.com/models/${action.payload.modelId}/entities?offset=0&include=psets&fields=psets`;
+    const response = yield call(instance.get, getCommentUrl);
+    const annIds = response.data.items.map((x) => {
+      if (x.psets.length > 0) {
+        const id = x.id;
+        const annValue = Number(x.psets[0].values[0]);
+        return { id: id, annId: annValue };
+      } else {
+        return { id: x.id, annId: -1 };
+      }
+    });
+    console.log(annIds);
+    yield put(
+      GetAnnIdSuccess({
+        name: action.payload.name,
+        modelId: action.payload.modelId,
+        annIds: annIds,
+      }),
+    );
+  } catch (error) {
+    yield put(GetAnnIdFailure({ error: error }));
+  }
 }
 
 function* updateViewVisibilitySaga(action) {

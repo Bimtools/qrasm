@@ -86,6 +86,12 @@ const reducers = (state = initialState, action) => {
         pending: false,
         annIds: [...state.annIds, action.payload],
       };
+    case type.GET_ANN_ID_FAILURE:
+      return {
+        ...state,
+        pending: false,
+        error: action.payload.error,
+      };
     case type.SHOW_ANN_REQUEST:
       return {
         ...state,
